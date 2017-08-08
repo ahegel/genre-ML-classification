@@ -29,10 +29,12 @@ Using the `make_predictions()` function, we can determine how difficult it is to
 |Not on creepy shelf | 0.67 | 0.71 | 0.69 | 666
 |avg / total | 0.68 | 0.68 | 0.68 | 1332
 
-| precision = true positives / (true positives + false positives) |
-| recall = true positives / (true positives + false negatives) |
-| f1-score = weighted mean of precision and recall |
-| support = number of occurrences of each class |
+measure | description
+--- | ---
+precision | true positives / (true positives + false positives)
+recall | true positives / (true positives + false negatives)
+f1-score | weighted mean of precision and recall
+support | number of occurrences of each class
 
 Words that predict a review is about a creepy book:
 
