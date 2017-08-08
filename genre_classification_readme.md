@@ -23,7 +23,7 @@ The size of the DataFrame is 1332 rows (each corresponding to one review) and 9 
 ## Train a model to classify the genre of reviews
 Using the `make_predictions()` function, we can determine how difficult it is to train a machine learning model to distinguish reviews of creepy books from reviews of other books. The function's results include a table showing the overall scores for the classifier, as well as the list of most predictive words:
 
- | precision | recall | f1-score | support
+- | precision | recall | f1-score | support
 --- | --- | --- | --- | ---
 On creepy shelf | 0.69 | 0.64 | 0.67 | 666
 Not on creepy shelf | 0.67 | 0.71 | 0.69 | 666
@@ -34,6 +34,7 @@ f1-score = weighted mean of precision and recall
 support = number of occurrences of each class
 
 Words that predict a review is about a creepy book:
+
 score | word
 --- | ---
 1.54145273279 | ghost
@@ -58,6 +59,7 @@ score | word
 0.994034481582 | lines
 
 Words that predict a review is NOT about a creepy book:
+
 score | word
 --- | ---
 -1.56235397666 | time
