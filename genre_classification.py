@@ -15,12 +15,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
-
 from nltk.corpus import stopwords
 from nltk.tokenize import WhitespaceTokenizer, TweetTokenizer
-
 import matplotlib.pyplot as plt
-
 import sqlite3
 import os
 import pandas as pd
@@ -46,81 +43,6 @@ from sklearn.linear_model import LogisticRegressionCV
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-
-#class TextCleaner(BaseEstimator, TransformerMixin):
-#    _numeric = re.compile('(\$)?\d+([\.,]\d+)*')# with decimals and so on figures
-#    _links = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')# links url
-#    _trans_table = string.maketrans({key: None for key in string.punctuation})
-##    def __init__(self):
-##        self.name='TextCleaner'
-#
-#    def clean_text(self, tokens):
-#        for i, w in enumerate(tokens):
-#            if TextCleaner._numeric.match(w):
-#                tokens[i] = w.translate(TextCleaner._trans_table)
-#            elif TextCleaner._links.match(w):
-#                tokens[i] = '_LINK_'
-#            else:
-#                continue
-#        return tokens
-# 
-#    def transform(self, X):
-#        for i, item in enumerate(X):
-#            tokenized = item.split()
-#            X[i] = " ".join(self.clean_text(tokenized))
-#
-#        return X
-#
-#    def fit_transform(self, X, y=None):
-#        return self.transform(X)
-#
-#    def fit(self, X, y=None):
-#        self.transform(X)
-#        return self
-
-#class EstimatorSelectionHelper:
-#    '''
-#    http://www.codiply.com/blog/hyperparameter-grid-search-across-multiple-models-in-scikit-learn/
-#    '''
-#    def __init__(self, models, params):
-#        if not set(models.keys()).issubset(set(params.keys())):
-#            missing_params = list(set(models.keys()) - set(params.keys()))
-#            raise ValueError("Some estimators are missing parameters: %s" % missing_params)
-#        self.models = models
-#        self.params = params
-#        self.keys = models.keys()
-#        self.grid_searches = {}
-#
-#    def fit(self, X, y, cv=3, n_jobs=1, verbose=1, scoring=None, refit=False):
-#        for key in self.keys:
-#            print("Running GridSearchCV for %s." % key)
-#            model = self.models[key]
-#            params = self.params[key]
-#            gs = GridSearchCV(model, params, cv=cv, n_jobs=n_jobs, 
-#                              verbose=verbose, scoring=scoring, refit=refit)
-#            gs.fit(X,y)
-#            self.grid_searches[key] = gs    
-#
-#    def score_summary(self, sort_by='mean_score'):
-#        def row(key, scores, params):
-#            d = {
-#                 'estimator': key,
-#                 'min_score': min(scores),
-#                 'max_score': max(scores),
-#                 'mean_score': numpy.mean(scores),
-#                 'std_score': numpy.std(scores),
-#            }
-#            return pd.Series(dict(params.items() + d.items()))
-#
-#        rows = [row(k, gsc.cv_validation_scores, gsc.parameters) 
-#                     for k in self.keys
-#                     for gsc in self.grid_searches[k].grid_scores_]
-#        df = pd.concat(rows, axis=1).T.sort([sort_by], ascending=False)
-#
-#        columns = ['estimator', 'min_score', 'mean_score', 'max_score', 'std_score']
-#        columns = columns + [c for c in df.columns if c not in columns]
-#
-#        return df[columns]
 
 class LemmaTokenizer(object):
     def __init__(self):
@@ -715,85 +637,6 @@ if __name__ == '__main__':
     except:
         pass
     stops.update(['http', 'br', 'tr'])
-    stops.update(['hitler', 'booth', 'lewis', 'zamperini', 'louie', 'churchill', 'lestat', 'zippy', 'bateman', 'bates'])
-    stops.update(['morrie', 'marley', 'mccandless', 'corfu', 'shackleton', 'einstein', 'martha', 'roosevelt', 'lbj'])
-    stops.update(['roland', 'ripley', 'reacher', 'bond', 'marlowe', 'courtney', 'cordelia', 'chigurh', 'kinsey', 'himmler'])
-    stops.update(['robicheaux', 'marian', 'sherlock', 'bourne', 'claire', 'scarlett', 'heathcliff', 'bridget', 'kennedys'])
-    stops.update(['bronte', 'darcy', 'tris', 'jacob', 'cassia', 'rochester', 'bella', 'ruby', 'romeo', 'auden', 'ender'])
-    stops.update(['katniss', 'foundation', 'kivrin', 'emma', 'winston', 'macarthur', 'camille', 'nick', 'lecter', 'eve'])
-    stops.update(['powell', 'raoul', 'potter', 'amy', 'christine', 'manderley', 'harry', 'dresden', 'lena', 'mapplethorpe'])
-    stops.update(['ian', 'sybil', 'teddy', 'theodore', 'cleopatra', 'rosemary', 'millhone', 'holmes', 'mcevoy', 'brigance'])
-    stops.update(['roarke', 'rhett', 'cora', 'hara', 'evan', 'bennet', 'taryn', 'maddox', 'offred', 'dunworthy', 'eleanor'])
-    stops.update(['ash', 'sam', 'ibal', 'clarice', 'patrick', 'peeta', 'ky', 'scarpetta', 'oprah', 'caesar', 'jake', 'bosch'])
-    stops.update(['kay', 'nate', 'jane', 'hazel', 'taylor', 'starling', 'nora', 'xander', 'crawford', 'sean', 'maus', 'aubrey'])
-    stops.update(['shamus', 'iii', 'salander', 'tess', 'himes', 'borges', 'fisher', 'sayers', 'wright', 'chesterton'])
-    stops.update(['barber', 'vian', 'chandler', 'arnold', 'dupin', 'malory', 'ophelia', 'pocahontas', 'hutchinson', 'tomas'])
-    stops.update(['edna', 'meyer', 'havelok', 'trilby', 'vera', 'morris', 'perceval', 'briony', 'saville', 'othello'])
-    stops.update(['ralph', 'clarel', 'curial', 'vankirk', 'camino', 'buffy', 'gaiman', 'medea', 'ginger', 'thacker'])
-    stops.update(['bruchac', 'wendigo', 'sacher', 'masoch', 'bechdel', 'joe', 'bachmann', 'kubrick', 'dain', 'boyd'])
-    stops.update(['defoe', 'napoleon', 'dorian', 'melville', 'pierre', 'harley', 'des', 'peter', 'pan', 'owens', 'wendy'])
-    stops.update(['wells', 'delany', 'butler', 'shiel', 'frankenstein', 'utopia', 'oedipus', 'cavell', 'pap', 'mccarthy'])
-    stops.update(['silberrad', 'laurens', 'bertillon', 'oscar', 'parker', 'collins', 'tolkien', 'davis', 'jeanne', 'jung'])
-    stops.update(['smith', 'justine', 'clarel', 'malet', 'le', 'helen', 'winterson', 'pp', 'rose', 'spenser', 'christopher'])
-    stops.update(['el', 'spark', 'archer', 'verloc', 'atalanta', 'judy', 'nabokov', 'browning', 'svengali', 'mehta', 'chen'])
-    stops.update(['galahad', 'rossetti', 'glenthorn', 'memed', 'fleda', 'almayer', 'lingard', 'charlie', 'chopin', 'bod'])
-    stops.update(['brigitte', 'snowman', 'trier', 'jason', 'mowgli', 'tolstoy', 'barr', 'dana', 'williams', 'bloom'])
-    stops.update(['lombroso', 'padura', 'montaigne', 'george', 'dickens', 'yunior', 'behn', 'poe', 'ti', 'sophocles', 'de'])
-    stops.update(['beckert', 'vivian', 'sebald', 'brautigan', 'bolano', 'vrkljan', 'sebastian', 'kemal', 'launfal', 'gawan'])
-    stops.update(['mahony', 'cobham', 'willems', 'eaton', 'loftus', 'chretien', 'von', 'kipling', 'beatrice', 'austen'])
-    stops.update(['dreiser', 'henry', 'rudy', 'la', 'lang', 'hamlet', 'dora', 'acs', 'prout', 'rupert', 'clover', 'cabrera'])
-    stops.update(['diaz', 'delillo', 'auster', 'chabon', 'meade', 'greg', 'moretti', 'sterne', 'lovecraft', 'fol', 'baojuan'])
-    stops.update(['arabella', 'fielding', 'gauvain', 'wao', 'eisner', 'addison', 'lu', 'woolf', 'johnson', 'jovanovic'])
-    stops.update(['ryan', 'bob', 'scott', 'bowen', 'rorty', 'frank', 'flora', 'king', 'bill', 'shojo', 'beckett', 'cohen'])
-    stops.update(['benedict', 'jovanovic', 'risco', 'ken', 'raffi', 'las', 'wieder', 'greene', 'machen', 'op', 'rand'])
-    stops.update(['sedgwick', 'hawthorne', 'pound', 'twain', 'frye', 'dai', 'orlando', 'digby', 'brenner', 'thoreau'])
-    stops.update(['katharine', 'fu', 'marguerite', 'harrington', 'violet', 'douglas', 'manchu', 'anna', 'augustus', 'ful'])
-    stops.update(['rhage', 'pkd', 'engle', 'jonas', 'kelsey', 'jones', 'johnny', 'palmer', 'poirot', 'dickie', 'lisbeth'])
-    stops.update(['meg', 'roberts', 'landon', 'juliet', 'mayfair', 'blomkvist', 'graham', 'smersh', 'wool', '1984'])
-    stops.update(['pendergast', 'lincoln', 'flagg', 'sk', 'alex', 'twilight', 'triffids', 'hannibal', 'moreau', 'prendick'])
-    stops.update(['shining', 'torrance', 'danny', 'stand', 'gabriel', 'dallas', 'geisha', 'sayuri', 'chiyo', 'pnr', 'archie'])
-    stops.update(['moss', 'kovacs', 'bancroft', 'persepolis', 'scissors', 'lukacs', 'bersani', 'erauso', 'campos', 'baldwin'])
-    stops.update(['freud', 'kluger', 'zorn', 'anne', 'santos', 'coraline', 'shklovsky', 'hemingway', 'welty', 'nancy'])
-    stops.update(['hailsham', 'jasmine', 'robinson', 'susan', 'middlemarch', 'kouty', 'stedman', 'mieville', 'drew'])
-    stops.update(['faulkner', 'que', 'fig', 'quixote', 'calinescu', 'lou', 'eliot', 'dowell', 'alcott', 'julian', 'segalla'])
-    stops.update(['derrida', 'colpeper', 'faolain', 'macardle', 'flaubert', 'alkan', 'malkiel', 'juno', 'broughton'])
-    stops.update(['seinfeld', 'conrad', 'khansa', 'lery', 'steinbeck', 'lucrece', 'dojinshi', 'joyce', 'helva', 'demy'])
-    stops.update(['caithleen', 'pullman', "khansaʾ", 'crusoe', 'eudora', 'shlomo', 'cappiello', 'aue', 'gawain', 'merrick'])
-    stops.update(['burroughs', 'stanwyck', 'guin', 'alice', 'stein', 'adams', 'fitzgerald', 'stevens', 'littell', '2013'])
-    stops.update(['cavendish', 'vendler', 'gorgik', 'gatsby', 'seimei', 'michelson', 'josie', 'miranda', 'succes', 'ul'])
-    stops.update(['bobby', 'chablis', 'hermione', 'anita', 'azimov', 'zoey', 'mercutio', 'lee', 'carl', 'mortensen', 'liz'])
-    stops.update(['henrietta', 'kate', 'flds', 'catherine', 'heidegger', 'kathy', 'hal', 'bean', 'luce', 'leguin', 'silo'])
-    stops.update(['sci', 'fi', 'watney', 'hyde', 'mike', 'jamie', 'ig', 'doug', 'neill', 'jenna', 'jude', 'merricat'])
-    stops.update(['ashlyn', 'dexter', 'clary', 'remy', 'wes', 'beth', 'macy', 'fwai', 'payton', 'louis', 'cam', 'kiera'])
-    stops.update(['travis', 'royce', 'ka', 'jj', 'wolfe', 'jace', 'marvin', 'melanie', 'davinci', 'gamache', 'baigent'])
-    stops.update(['da', 'carre', 'lynley', 'faber', 'spade', 'arkady', 'mikael', 'nero', 'renko', 'cameron', 'reich'])
-    stops.update(['tom', 'leamas', 'cathy', 'dalgliesh', 'cain', 'vinci', 'dave', 'mish', 'goldfinch', 'maggie', 'walter'])
-    stops.update(['greenleaf', 'annette', 'marie', 'antoinette', 'clark', 'columbus', 'eric', 'tayo', 'abigail', 'jekyll'])
-    stops.update(['caligula', 'ayn', 'sf', 'scifi', 'haley', 'max', 'phoebe', 'nina', 'peyton', 'toland', 'ashton', 'toph'])
-    stops.update(['jean', 'caleb', 'stewart', 'beau', 'layken', 'joss', 'sawyer', 'arnie', 'lenny', 'enders', 'pournelle'])
-    stops.update(['herbert', 'lucy', 'shevek', 'mick', 'jd', 'moroi', 'neal', 'edward', 'henrik', 'fdr', 'relin', 'ella'])
-    stops.update(['goll', 'reagan', 'finley', 'lenin', 'ellroy', 'redstone', 'redmond', 'dodgson', 'evans', 'meinertzhagen'])
-    stops.update(['fleming', 'cheever', 'montague', 'thurston', 'trotsky', 'podhoretz', 'rembrandt', 'novak', 'lerman'])
-    stops.update(['welles', 'richelieu', 'soto', 'winn', 'bruni', 'rosenfeld', 'carey', 'crosby', 'mauldin', 'kreuger'])
-    stops.update(['reven', 'cosima', 'kelly', 'ford', 'schama', 'swanson', 'mellon', 'montefiore', 'chavez', 'webster'])
-    stops.update(['clinton', 'itzkoff', 'dickinson', 'philip', 'gretchen', 'stahl', 'heinrich', 'ali', 'einhorn', 'dickerson'])
-    stops.update(['mcluhan', 'wasserman', 'steffens', 'daley', 'rescorla', 'marshall', 'jackson', 'cramer', 'chanel', 'jett'])
-    stops.update(['burr', 'willis', 'vanderbilt', 'sharon', 'dimaggio', 'yogi', 'ransome', 'bush', 'maynard', 'baker'])
-    stops.update(['hamilton', 'newton', 'highsmith', 'witte', 'schenkar', 'boswell', 'ziegfeld', 'mitchell', 'foote', 'stalin'])
-    stops.update(['lapidus', 'tati', 'rawlins', 'cassavetes', 'nixon', 'coe', 'eileen', 'auchincloss', 'spalding', 'silverman'])
-    stops.update(['wolper', 'peterson', 'seaver', 'ravitch', 'florman', 'claiborne', 'thackeray', 'bogart', 'matisse', 'maugham'])
-    stops.update(['mozart', 'mcnall', 'eichmann', 'copernicus', 'leonowens', 'franklin', 'mcclellan', 'hayek', 'heydrich'])
-    stops.update(['murdoch', 'galbraith', 'kissinger', 'parsons', 'ann', 'rushdie', 'wodehouse', 'sade', 'richenbacker'])
-    stops.update(['mastrogiacomo', 'amis', 'andrews', 'malamud', 'clemente', 'murray', 'gershwin', 'rickenbacker', 'spearman'])
-    stops.update(['harvey', 'preminger', 'mao', 'macaulay', 'mishima', 'yates', 'dickstein', 'philby', 'sinatra', 'bailey'])
-    stops.update(['weill', 'hampton', 'massie', 'mitford', 'alsop', 'gandhi', 'palewski', 'madison', 'kitchener', 'molineux'])
-    stops.update(['frick', 'taney', 'babchenko', 'wilson', 'kennan', 'kosciuszko', 'santayana', 'greeley', 'douglass', 'yeltsin'])
-    stops.update(['olmsted', 'thompson', 'dorothy', 'muriel', 'alexander', 'liu', 'koch', 'disch', 'patterson', 'lasker'])
-    stops.update(['palmerston', 'hartigan', 'ross', 'dixon', 'lilley', 'mokyr', 'lyons', 'mercedes', 'feynman', 'altman'])
-    stops.update(['daniels', 'koryta', 'fred', 'cooper', 'mordden', 'constance', 'weintraub', 'kagan', 'sati', 'vermeer'])
-    stops.update(['giuliani', 'spitzer', 'carlin', 'greenspan', 'rebus', 'derek', 'dick', 'holt', 'phyllis', 'val', 'jimmy'])
-    stops.update(['toni', 'blaire', 'juliette', 'tamani', 'sookie', 'sydney', 'cliffy', 'amelia', 'warner', 'abby', 'olivia'])
-    stops.update(['charley', 'esther', 'alisa', 'ukiah', 'knulp', 'chaya', 'mara', '12', 'dex'])
     stops = set(x.lower() for x in stops)
 
     pipeline = Pipeline([
