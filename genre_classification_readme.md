@@ -5,7 +5,7 @@ Using machine learning to classify Goodreads book reviews based on genre, reveal
 How predictable are readers' responses to books in a given genre? This project uses machine learning to classify book reviews into genres and then compares the predictability of each genre, ultimately showing which genres have a well-defined vocabulary for reader responses and which genres inspire a more diverse range of responses.
 
 ## Get book review data
-To start, we need book reviews. In `genre_classification.py`, the functions `get_reviews()` and `get_reviews_by_year()` get book review data from a SQLite database, but you can substitute your own function based on your project's data structure.
+To start, we need book reviews. In [`genre_classification.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_classification.py), the functions `get_reviews()` and `get_reviews_by_year()` get book review data from a SQLite database, but you can substitute your own function based on your project's data structure.
 
 The data retrieval function is customizable to get data from different corpora (Goodreads, professional reviews like the Los Angeles Review of Books, or academic articles), from different genres or Goodreads shelves, from individual years or groups of years (to compare classification accuracy over time), and from different pages of search results. 
 
