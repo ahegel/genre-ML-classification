@@ -8,7 +8,7 @@ On Goodreads, users can create "shelves" to group similar books in their collect
 The experiment outlined here walks through the code in [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py).
 
 ## Get bookshelf data
-On Goodreads, each book has a list of "shelves" readers have placed the book on. We're going to cluster these shelves into genres by grouping shelves that have similar books on them. To start, we need data from Goodreads that shows each book, which shelves that book has been placed on, and how many times it was placed on that shelf, for as many books as possible. We can generate a file like this for historical Goodreads data using the Wayback Machine scraper in my [`web-scrapers` repository](https://github.com/ahegel/web-scrapers).  In `genre_clustering.py`, the function `get_wayback_shelf_data()` reads this information from a json file with shelving data from a Goodreads shelf page ([example](https://www.goodreads.com/work/shelves/4640799)). One line from that file looks like this:
+On Goodreads, each book has a list of "shelves" readers have placed the book on. We're going to cluster these shelves into genres by grouping shelves that have similar books on them. To start, we need data from Goodreads that shows each book, which shelves that book has been placed on, and how many times it was placed on that shelf, for as many books as possible. We can generate a file like this for historical Goodreads data using the Wayback Machine scraper in my [`web-scrapers` repository](https://github.com/ahegel/web-scrapers).  In `genre_clustering.py`, the function `get_wayback_shelf_data()` reads this information from a json file with shelving data from a Goodreads shelf page ([example](https://www.goodreads.com/work/shelves/4640799)). One item from that file looks like this:
 
 ```json
 {
@@ -84,6 +84,7 @@ visualize_clusters_hierarchical(reduced_df, dist, x, y, names, method='ward')
 ```
 
 Here's the result of hierarchical clustering if we highlight the "World War I" cluster (composed of the shelves "wwi", "ww-i", "world-war-i", "world-war-1", and "wwi"):
+
 ![cluster scatterplot](/images/cluster_scatterplot.png)
 
 As you can tell, there are too many shelves to make much sense of the scatterplot. A dendrogram is much more helpful. `genre_clustering.py` outputs a dendrogram of the results of the clustering algorithm (view it [here](https://github.com/ahegel/machine-learning-genre/blob/master/images/hierarchical_clusters.png)).
@@ -99,18 +100,27 @@ and a similar cluster for the Civil War:
 It groups traditional genres surprisingly well:
 
 ![Biography dendrogram](/images/dendrogram_biography.png)
+
 ![Horror dendrogram](/images/dendrogram_horror.png)
+
 ![Science fiction dendrogram](/images/dendrogram_sf.png)
+
 ![Historical fiction dendrogram](/images/dendrogram_historicalfic.png)
+
 ![Cinema dendrogram](/images/dendrogram_cinema.png)
+
 ![Classics dendrogram](/images/dendrogram_classics.png)
 
 We can also see less well-established genres:
 
 ![Chick lit dendrogram](/images/dendrogram_chicklit.png)
+
 ![Cookbooks dendrogram](/images/dendrogram_cookbooks.png)
+
 ![Vampires dendrogram](/images/dendrogram_vampires.png)
+
 ![Design dendrogram](/images/dendrogram_design.png)
+
 ![Web dendrogram](/images/dendrogram_web.png)
 
 Stephen King is a genre of his own: 
