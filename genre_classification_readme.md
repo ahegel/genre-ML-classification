@@ -9,7 +9,7 @@ To start, we need book reviews. In [`genre_classification.py`](https://github.co
 
 The data retrieval function is customizable to get data from different corpora (Goodreads, professional reviews like the Los Angeles Review of Books, or academic articles), from different genres or Goodreads shelves, from individual years or groups of years (to compare classification accuracy over time), and from different pages of search results. 
 
-For example, if you run the program to extract book reviews from Goodreads where the reviewer placed the book on the shelf "creepy" [Goodreads "creepy" shelf](https://www.goodreads.com/shelf/show/creepy), the resulting DataFrame has this structure:
+For example, if you run the program to extract book reviews from Goodreads where the reviewer placed the book on the [Goodreads "creepy" shelf](https://www.goodreads.com/shelf/show/creepy), the resulting DataFrame has this structure:
 
 body | book_title | book_author | review_pub_date | reviewer_bookshelves | shelf_genre
 --- | --- | --- | --- | --- | ---
