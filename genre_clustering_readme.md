@@ -5,7 +5,7 @@ Using machine learning to reveal clusters of Goodreads shelves, supporting bette
 On Goodreads, users can create "shelves" to group similar books in their collection. But since there are over 15,000 shelves on Goodreads, to understand the types of shelves that exist and how people are using them, we need some way to simplify the data. By algorithmically grouping shelves into clusters using machine learning, we can automatically create collections of shelves that function similarly and reflect new types of literary genres that emerge on Goodreads. These new genres allow us to see patterns of similarity in shelving at a larger scale than we could through manual examination. By clustering shelves into genres, we can visualize genre on Goodreads in a way that reflects how people are actually using the site, rather than relying on pre-established definitions of genre.
 
 ## Following along
-The experiment outlined here walks through the code in [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py).
+The experiment outlined here walks through the code in [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py). To run the experiment on your own data, replace `goodreadsshelves_sample.json` with your own Goodreads shelving data and then run `genre_clustering.py` with your desired settings.
 
 ## Get bookshelf data
 On Goodreads, each book has a list of "shelves" readers have placed the book on. We're going to cluster these shelves into genres by grouping shelves that have similar books on them. To start, we need data from Goodreads that shows each book, which shelves that book has been placed on, and how many times it was placed on that shelf, for as many books as possible. We can generate a file like this for historical Goodreads data using the Goodreads Shelves Wayback Spider in my [`web-scrapers` repository](https://github.com/ahegel/web-scrapers).  In `genre_clustering.py`, the function `get_wayback_shelf_data()` reads this information from a json file with shelving data from a Goodreads shelf page ([example](https://www.goodreads.com/work/shelves/4640799)). One item from that file looks like this:
@@ -52,7 +52,7 @@ years, max_ratio, min_books, n = [2013, 2014], .45, 0, 10
 df, df_raw = get_wayback_shelf_data(shelf_json=shelf_file, max_ratio=max_ratio, min_books_using_shelf=min_books, n=n, years=years)
 ```
 
-The result of the function, df, is a DataFrame with each row corresponding to a book title and each column marking a shelf, where the values are the normalized number of people who have placed the book on that shelf:
+The result of the function, df, is a sparse DataFrame with each row corresponding to a book title and each column marking a shelf, where the values are the normalized number of people who have placed the book on that shelf:
 
 book_title | animals | anthologies | anthropology
 --- | --- | --- | ---
@@ -62,32 +62,41 @@ A House for Hermit Crab | 0.33 | 0.0 | 0.0
 Partner to the Poor | 0.0 | 0.0 | 0.24
 
 ## Dimensionality reduction
-Since the DataFrame is so high-dimensional (my full dataset has 2049 unique books and 1667 shelves), clustering won't be effective unless we reduce the dimensionality. There are several methods possible in `genre_clustering.py`, including multidimensional scaling, PCA, and isomap, but I found that isomap worked best for my data.
+Since the DataFrame is so high-dimensional (my full dataset has 2049 unique books and 1667 shelves), clustering won't be effective unless we reduce the dimensionality. There are several methods possible in `genre_clustering.py`, including PCA, multidimensional scaling, and isomap, but I found that t-SNE worked best for my data.
 
 ```python
 # create distance/proximity matrix
 dist = 1 - cosine_similarity(df.T)
 
 # perform dimensionality reduction
-x, y, names = reduce_dimensionality(df.T, dist, dim_type='isomap')
+x, y, names = reduce_dimensionality(df.T, dist, dim_type='tsne')
 ```
 
-This plots the data in two dimensions (rather than 1667). Here's what it looks like:
-IMAGE: dimensionality_reduction.png
+This plots the data in two dimensions (rather than 1667).
 
 ## Clustering
-With this new, simpler representation of the data, we can now use machine learning to group shelves into clusters of shelves. `genre_clustering.py` includes several possible clustering algorithms, including both hierarchical and k-means methods. 
+With this new, simpler representation of the data, we can now use machine learning to group shelves into clusters of shelves. `genre_clustering.py` includes several possible clustering algorithms, including both hierarchical and k-means methods. For this application, since there is not a set number of clusters to find and clusters vary greatly in size, hierarchical clustering works best.
 
 ```
 reduced_df = pd.DataFrame({'x': x.tolist(), 'y': y.tolist()}, index=names)
 visualize_clusters_hierarchical(reduced_df, dist, x, y, names, method='ward')
 ```
 
-Here's the result of hierarchical clustering if we highlight the "World War I" cluster (composed of the shelves "wwi", "ww-i", "world-war-i", "world-war-1", and "wwi"):
+Here's the result of hierarchical clustering with several prominent clusters highlighted:
 
 ![cluster scatterplot](/images/cluster_scatterplot.png)
 
-As you can tell, there are too many shelves to make much sense of the scatterplot. A dendrogram is much more helpful. `genre_clustering.py` outputs a dendrogram of the results of the clustering algorithm (view it [here](https://github.com/ahegel/machine-learning-genre/blob/master/images/hierarchical_clusters.png)).
+This scatterplot shows the most commonly used shelves on Goodreads, placed based on how many books each shelf has in common with other shelves. If two shelves have a lot of books in common, meaning many users place the same book on both shelves, those shelves will appear close together. Groups of shelves that all share many books in common are shown as colored clusters. Let's zoom in on two of the clusters:
+
+![cluster scatterplot](/images/sf_cluster.png)
+
+The science fiction and fantasy cluster shows a tight grouping of shelves with little division between the two genres "science fiction" and "fantasy." Interestingly, a shelf for prospective mystery books as well as a cold war shelf seem closely related to the scifi-fantasy shelves.
+
+![cluster scatterplot](/images/food_cluster.png)
+
+The food cluster grouped books on food and cooking in a tight cluster. Impressively, the algorithm didn't use any information about the shelf names to group together these similarly-named shelves, but rather relied on readers using the shelves similarly to form the cluster. Adjacent shelves include "quick-read" and "read-non-fiction."
+
+But there are too many shelves to see every cluster clearly. A dendrogram is helpful in this case. `genre_clustering.py` outputs a dendrogram of the results of the clustering algorithm (view it [here](https://github.com/ahegel/machine-learning-genre/blob/master/images/hierarchical_clusters.png)).
 
 Zooming in, we can see the World War I cluster much more clearly:
 

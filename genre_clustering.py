@@ -26,15 +26,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import pairwise_distances
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from sklearn.manifold import MDS
-from sklearn.manifold import Isomap
+from sklearn import manifold, decomposition
 from collections import Counter
 from scipy.cluster.hierarchy import linkage
 from heapq import nsmallest
 from sklearn.metrics import silhouette_samples, silhouette_score
 import hdbscan
 import seaborn as sns
-from sklearn.decomposition import PCA
 
 
 def get_shelf_data(shelf_json, max_ratio=0.25, min_books_using_shelf=1):
@@ -736,21 +734,34 @@ def get_top_shelves(data):
 def reduce_dimensionality(df, distances, dim_type):
     print 'reducing dimensionality'
     if dim_type == 'mds':
-        MDS()
         # convert two components as we're plotting points in a two-dimensional plane
         # "precomputed" because we provide a distance matrix
         # we will also specify 'random_state' so the plot is reproducible.
-        mds = MDS(n_components=2, dissimilarity="precomputed", random_state=1)
+        mds = manifold.MDS(n_components=2, dissimilarity="precomputed", random_state=1)
         pos = mds.fit_transform(distances)  # shape (n_components, n_samples)
-        xs, ys = pos[:, 0], pos[:, 1]
     if dim_type == 'isomap':
-        pos = Isomap(n_neighbors=10, n_components=2).fit_transform(distances)
-        xs, ys = pos[:, 0], pos[:, 1]
+        pos = manifold.Isomap(n_neighbors=10, n_components=2).fit_transform(distances)
     if dim_type == 'pca':
-        pca = PCA(n_components=2, random_state=1)
+        pca = decomposition.PCA(n_components=2, random_state=1)
         pos = pca.fit_transform(distances)
-        xs, ys = pos[:, 0], pos[:, 1]
+    if dim_type == 'sparsepca':
+        pca = decomposition.SparsePCA(n_components=2, random_state=1)
+        pos = pca.fit_transform(distances)
+    if dim_type == 'tsne':
+        tsne = manifold.TSNE(n_components=2, init='pca', random_state=1)
+        pos = tsne.fit_transform(distances)
+    if dim_type == 'spectral':
+        se = manifold.SpectralEmbedding(n_components=2, n_neighbors=10, random_state=1)
+        pos = se.fit_transform(distances)
+    if dim_type == 'lle':
+        methods = ['standard', 'ltsa', 'hessian', 'modified']
+        lle = manifold.LocallyLinearEmbedding(n_neighbors=10, n_components=2, method=methods[1], random_state=1)
+        pos = lle.fit_transform(distances)
+    if dim_type == 'trunc':
+        tsvd = decomposition.TruncatedSVD(n_components=2, random_state=1)
+        pos = tsvd.fit_transform(distances)
 
+    xs, ys = pos[:, 0], pos[:, 1]
     names = df.index.values
 
     for x, y, name in zip(xs, ys, names):
@@ -789,17 +800,17 @@ def get_streamgraph_data(df, shelves):
 
 if __name__ == '__main__':
     # get data from Goodreads website scrape
-#    df, df_raw = get_shelf_data(shelf_json='goodreadsshelves-random.json',
-#                                max_ratio=0.20, min_books_using_shelf=25)
+    df, df_raw = get_shelf_data(shelf_json='goodreadsshelves_sample.json',
+                                max_ratio=0.20, min_books_using_shelf=25)
 
     # get data from specific year(s) via the Internet Archive Wayback Machine
-    years, max_ratio, min_books, n = [2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017], .45, 0, 10
-    df, df_raw = get_wayback_shelf_data(shelf_json='E:/0-docs/diss/data/goodreadsshelves-random_wayback.json',
-                                        max_ratio=max_ratio, min_books_using_shelf=min_books, n=n, years=years)
-    print 'number of results for ' + str(years) + ': (unique books, shelves)'
-    print df_raw.shape
-    print 'total shelvings in dataset for ' + str(years) + ':'
-    print df_raw.values.sum()
+#    years, max_ratio, min_books, n = [2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017], .45, 0, 10
+#    df, df_raw = get_wayback_shelf_data(shelf_json='E:/0-docs/diss/data/goodreadsshelves-random_wayback.json',
+#                                        max_ratio=max_ratio, min_books_using_shelf=min_books, n=n, years=years)
+#    print 'number of results for ' + str(years) + ': (unique books, shelves)'
+#    print df_raw.shape
+#    print 'total shelvings in dataset for ' + str(years) + ':'
+#    print df_raw.values.sum()
 
     # visualize the effect of vairous standardization methods to determine
     # if you should standardize your data
@@ -809,7 +820,7 @@ if __name__ == '__main__':
     dist = 1 - cosine_similarity(df.T)
 
     # perform dimensionality reduction
-    x, y, names = reduce_dimensionality(df.T, dist, dim_type='isomap')
+    x, y, names = reduce_dimensionality(df.T, dist, dim_type='tsne')
 
     # cluster data
     clustering_type = 'hierarchical'
