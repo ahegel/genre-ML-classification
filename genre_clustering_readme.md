@@ -5,10 +5,10 @@ Using machine learning to reveal clusters of Goodreads shelves, supporting bette
 On Goodreads, users can create "shelves" to group similar books in their collection. But since there are over 15,000 shelves on Goodreads, to understand the types of shelves that exist and how people are using them, we need some way to simplify the data. By algorithmically grouping shelves into clusters using machine learning, we can automatically create collections of shelves that function similarly and reflect new types of literary genres that emerge on Goodreads. These new genres allow us to see patterns of similarity in shelving at a larger scale than we could through manual examination. By clustering shelves into genres, we can visualize genre on Goodreads in a way that reflects how people are actually using the site, rather than relying on pre-established definitions of genre.
 
 ## Following along
-The experiment outlined here walks through the code in [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py). To run the experiment on your own data, replace `goodreadsshelves_sample.json` with your own Goodreads shelving data and then run `genre_clustering.py` with your desired settings.
+The experiment outlined here walks through the code in [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py). To run the experiment on your own data, replace `goodreadsshelves_sample.json` with your own Goodreads shelving data and then run [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py) with your desired settings.
 
 ## Get bookshelf data
-On Goodreads, each book has a list of "shelves" readers have placed the book on. We're going to cluster these shelves into genres by grouping shelves that have similar books on them. To start, we need data from Goodreads that shows each book, which shelves that book has been placed on, and how many times it was placed on that shelf, for as many books as possible. We can generate a file like this for historical Goodreads data using the Goodreads Shelves Wayback Spider in my [`web-scrapers` repository](https://github.com/ahegel/web-scrapers).  In `genre_clustering.py`, the function `get_wayback_shelf_data()` reads this information from a json file with shelving data from a Goodreads shelf page ([example](https://www.goodreads.com/work/shelves/4640799)). One item from that file looks like this:
+On Goodreads, each book has a list of "shelves" readers have placed the book on. We're going to cluster these shelves into genres by grouping shelves that have similar books on them. To start, we need data from Goodreads that shows each book, which shelves that book has been placed on, and how many times it was placed on that shelf, for as many books as possible. We can generate a file like this for historical Goodreads data using the Goodreads Shelves Wayback Spider in my [web-scrapers repository](https://github.com/ahegel/web-scrapers).  In [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py), the function `get_wayback_shelf_data()` reads this information from a json file with shelving data from a [Goodreads shelf page](https://www.goodreads.com/work/shelves/4640799) ([example file](https://github.com/ahegel/machine-learning-genre/blob/master/goodreadsshelves_sample.json)). One simple item looks like this:
 
 ```json
 {
@@ -43,7 +43,7 @@ On Goodreads, each book has a list of "shelves" readers have placed the book on.
 }
 ```
 
-`genre_clustering.py` also includes a function to read data scraped directly from Goodreads: `get_shelf_data()`.
+[`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py) also includes a function to read data scraped directly from Goodreads: `get_shelf_data()`.
 
 The function `get_wayback_shelf_data()` scrapes the json shelf data, cleans it, and returns a DataFrame for further analysis. You can call the function for any range of years in your dataset, and modify the parameters for max_ratio (the maximum ratio of books in the dataset that a shelf can contain to be included - use this to eliminate shelves that contain too many different books to be meaningful, like "to read"), min_books (the minimum number of books assigned to a shelf for that shelf to be included - use this to eliminate rarely-used shelves), and n (the number of shelves to include for each book - use this to limit to only a book's most popular shelves). The function returns `df`, the normalized DataFrame, and `df_raw`, the DataFrame with raw counts of the number of times people use a given shelf.
 
@@ -75,7 +75,7 @@ x, y, names = reduce_dimensionality(df.T, dist, dim_type='tsne')
 This plots the data in two dimensions (rather than 1667).
 
 ## Clustering
-With this new, simpler representation of the data, we can now use machine learning to group shelves into clusters of shelves. `genre_clustering.py` includes several possible clustering algorithms, including both hierarchical and k-means methods. For this application, since there is not a set number of clusters to find and clusters vary greatly in size, hierarchical clustering works best.
+With this new, simpler representation of the data, we can now use machine learning to group shelves into clusters of shelves. [`genre_clustering.py`](https://github.com/ahegel/machine-learning-genre/blob/master/genre_clustering.py) includes several possible clustering algorithms, including both hierarchical and k-means methods. For this application, since there is not a set number of clusters to find and clusters vary greatly in size, hierarchical clustering works best.
 
 ```
 reduced_df = pd.DataFrame({'x': x.tolist(), 'y': y.tolist()}, index=names)
